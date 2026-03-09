@@ -1,0 +1,64 @@
+# 设备配置文件
+
+# FPGA控制器
+fpga:
+  type: "ZynqController"
+  device_id: "zynq_fpga"
+  host: "192.168.1.10"
+  port: 5000
+  config:
+    encoder_resolution_nm: 1.0
+
+# XY运动台
+stage_xy:
+  type: "ZMotionStage"
+  device_id: "zmotion_xy"
+  ip_address: "192.168.0.11"
+  x_axis: 0
+  y_axis: 1
+  config:
+    speed: 100.0
+    accel: 500.0
+    units_per_mm: 1000.0
+    soft_limit_x: [0, 100]
+    soft_limit_y: [0, 100]
+
+# Z轴压电台
+stage_z:
+  type: "PIPiezoStage"
+  device_id: "pi_piezo_z"
+  connection_type: "tcp"
+  address: "192.168.1.20"
+  axis_name: "1"
+  config:
+    range_min: 0.0
+    range_max: 100.0
+
+# 相机阵列
+cameras:
+  - type: "BaslerCamera"
+    device_id: "basler_cam_1"
+    serial_number: null
+    config:
+      exposure_us: 1000.0
+      gain: 0.0
+      trigger_mode: "hardware"
+      trigger_source: "Line1"
+  
+  - type: "BaslerCamera"
+    device_id: "basler_cam_2"
+    serial_number: null
+    config:
+      exposure_us: 1000.0
+      gain: 0.0
+      trigger_mode: "hardware"
+      trigger_source: "Line1"
+  
+  - type: "BaslerCamera"
+    device_id: "basler_cam_3"
+    serial_number: null
+    config:
+      exposure_us: 1000.0
+      gain: 0.0
+      trigger_mode: "hardware"
+      trigger_source: "Line1"

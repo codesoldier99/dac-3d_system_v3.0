@@ -1,0 +1,40 @@
+# DAC-3D 系统配置文件
+
+# 硬件配置
+hardware:
+  # FPGA配置
+  fpga_host: "192.168.1.10"
+  fpga_port: 5000
+  encoder_resolution_nm: 1.0
+  
+  # ZMotion运动控制卡
+  zmotion_ip: "192.168.0.11"
+  zmotion_x_axis: 0
+  zmotion_y_axis: 1
+  zmotion_speed: 100.0  # mm/s
+  
+  # PI压电台
+  pi_connection: "tcp"
+  pi_address: "192.168.1.20"
+  pi_axis: "1"
+  pi_range_min: 0.0
+  pi_range_max: 100.0
+  
+  # Basler相机
+  camera_serial_numbers:
+    - null  # 相机1序列号，null表示自动识别
+    - null  # 相机2
+    - null  # 相机3
+  camera_exposure_us: 1000.0
+  camera_gain: 0.0
+
+# 扫描配置
+scan:
+  default_step_x: 10.0  # μm
+  default_step_y: 10.0  # μm
+  default_step_z: 1.0   # μm
+  scan_velocity: 10.0   # mm/s
+
+# 系统配置
+data_dir: "./data"
+log_level: "INFO"
