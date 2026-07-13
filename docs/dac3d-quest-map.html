@@ -1,0 +1,439 @@
+<title>DAC-3D 半年闯关地图</title>
+<style>
+  :root{
+    --bg:#0b0f15; --bg2:#0e141d; --panel:#131b25; --panel2:#18222e;
+    --line:#25313f; --line2:#31404f;
+    --ink:#e7edf4; --ink2:#aeb9c6; --ink3:#7d8a99;
+    --chrome:#18c6c0; --chrome-ink:#062a29;
+    /* spectral level accents = dispersion 颜色即高度 */
+    --l1:#8b6cff; --l2:#3088ff; --l3:#16c6c0; --l4:#34cf7a; --l5:#ffb020; --l6:#ff5b52;
+    --good:#34cf7a; --warn:#ffb020;
+    --shadow:0 1px 0 rgba(255,255,255,.03), 0 18px 40px -24px rgba(0,0,0,.8);
+    --mono:ui-monospace,"SF Mono","Cascadia Code",Menlo,Consolas,monospace;
+    --sans:system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    --maxw:1080px;
+  }
+  @media (prefers-color-scheme: light){
+    :root{
+      --bg:#eef2f6; --bg2:#e7edf3; --panel:#ffffff; --panel2:#f4f7fa;
+      --line:#dbe3ec; --line2:#c7d3df;
+      --ink:#101922; --ink2:#425163; --ink3:#71808f;
+      --chrome:#0a9c97; --chrome-ink:#ffffff;
+      --shadow:0 1px 0 rgba(255,255,255,.7), 0 20px 40px -28px rgba(20,40,60,.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0b0f15; --bg2:#0e141d; --panel:#131b25; --panel2:#18222e;
+    --line:#25313f; --line2:#31404f; --ink:#e7edf4; --ink2:#aeb9c6; --ink3:#7d8a99;
+    --chrome:#18c6c0; --chrome-ink:#062a29;
+    --shadow:0 1px 0 rgba(255,255,255,.03), 0 18px 40px -24px rgba(0,0,0,.8);
+  }
+  :root[data-theme="light"]{
+    --bg:#eef2f6; --bg2:#e7edf3; --panel:#ffffff; --panel2:#f4f7fa;
+    --line:#dbe3ec; --line2:#c7d3df; --ink:#101922; --ink2:#425163; --ink3:#71808f;
+    --chrome:#0a9c97; --chrome-ink:#ffffff;
+    --shadow:0 1px 0 rgba(255,255,255,.7), 0 20px 40px -28px rgba(20,40,60,.35);
+  }
+
+  *{box-sizing:border-box}
+  body{margin:0;background:
+      radial-gradient(1100px 520px at 82% -8%, color-mix(in srgb, var(--chrome) 12%, transparent), transparent 60%),
+      radial-gradient(900px 480px at 0% 108%, color-mix(in srgb, var(--l1) 12%, transparent), transparent 60%),
+      var(--bg);
+    color:var(--ink);font-family:var(--sans);line-height:1.55;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:34px 22px 72px}
+  .mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink3)}
+  h1,h2,h3{text-wrap:balance;margin:0}
+  a{color:inherit}
+
+  /* ── HERO ─────────────────────────────── */
+  .hero{position:relative;border:1px solid var(--line);border-radius:20px;overflow:hidden;
+    background:linear-gradient(180deg,var(--panel2),var(--panel));box-shadow:var(--shadow)}
+  .hero-spectrum{height:6px;background:linear-gradient(90deg,var(--l1),var(--l2),var(--l3),var(--l4),var(--l5),var(--l6))}
+  .hero-in{padding:30px 30px 26px}
+  .hero-top{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+  .badge{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line2);border-radius:999px;
+    padding:6px 12px;font-family:var(--mono);font-size:12px;color:var(--ink2);background:var(--panel)}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--chrome);box-shadow:0 0 0 4px color-mix(in srgb,var(--chrome) 22%,transparent)}
+  h1{font-size:clamp(28px,4.6vw,44px);line-height:1.08;letter-spacing:-.015em;margin:18px 0 8px;font-weight:800}
+  h1 .hl{color:var(--chrome)}
+  .lede{color:var(--ink2);font-size:clamp(15px,1.7vw,17px);max-width:62ch}
+  .hero-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:24px}
+  .stat{border:1px solid var(--line);border-radius:14px;padding:14px 16px;background:var(--panel)}
+  .stat .k{font-family:var(--mono);font-size:23px;font-weight:700;color:var(--ink);letter-spacing:-.01em}
+  .stat .l{font-size:12.5px;color:var(--ink3);margin-top:3px}
+  .stat .k .u{font-size:13px;color:var(--ink3);font-weight:600}
+
+  /* ── SECTION HEADINGS ─────────────────── */
+  .sec{margin-top:46px}
+  .sec-h{display:flex;align-items:baseline;gap:14px;margin-bottom:6px}
+  .sec-h h2{font-size:20px;font-weight:800;letter-spacing:-.01em}
+  .sec-sub{color:var(--ink2);font-size:14.5px;max-width:70ch;margin:0 0 22px}
+
+  /* ── QUEST MAP ────────────────────────── */
+  .map{position:relative}
+  .level{position:relative;display:grid;grid-template-columns:64px 1fr;gap:20px;padding-bottom:26px}
+  .rail{position:relative;display:flex;flex-direction:column;align-items:center}
+  .node{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;flex:none;
+    font-family:var(--mono);font-weight:700;font-size:17px;color:#08121a;
+    background:var(--lc);box-shadow:0 0 0 5px color-mix(in srgb,var(--lc) 20%,transparent), var(--shadow);z-index:2}
+  .spine{position:absolute;top:10px;bottom:-26px;width:3px;left:calc(50% - 1.5px);
+    background:linear-gradient(180deg,var(--lc),var(--lc-next));opacity:.55;z-index:1}
+  .level:last-child .spine{display:none}
+  .depth{margin-top:10px;font-family:var(--mono);font-size:10.5px;color:var(--ink3);text-align:center;letter-spacing:.04em}
+
+  .card{border:1px solid var(--line);border-left:3px solid var(--lc);border-radius:16px;
+    background:linear-gradient(180deg,var(--panel2),var(--panel));box-shadow:var(--shadow);
+    padding:20px 22px;transition:transform .18s ease, border-color .18s ease}
+  .card:hover{transform:translateY(-2px);border-color:var(--line2)}
+  .card-top{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap}
+  .track{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--lc);font-weight:700}
+  .card h3{font-size:21px;font-weight:800;letter-spacing:-.01em;margin:5px 0 2px}
+  .card h3 .en{color:var(--ink3);font-weight:600;font-size:14px;font-family:var(--mono)}
+  .wl{font-family:var(--mono);font-size:12px;color:var(--ink2);white-space:nowrap;
+    border:1px solid var(--line2);border-radius:8px;padding:5px 9px;background:var(--panel)}
+  .wl b{color:var(--lc)}
+
+  .world{margin:14px 0 4px;font-size:13px;color:var(--ink2)}
+  .world .tag{display:inline-block;font-family:var(--mono);font-size:11.5px;color:var(--ink2);
+    background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:2px 7px;margin:3px 5px 0 0}
+
+  .unlock{margin:14px 0 0;padding:0;list-style:none;display:grid;gap:8px}
+  .unlock li{position:relative;padding-left:24px;font-size:14.5px;color:var(--ink)}
+  .unlock li::before{content:"";position:absolute;left:4px;top:8px;width:9px;height:9px;border-radius:3px;
+    background:var(--lc);box-shadow:0 0 0 3px color-mix(in srgb,var(--lc) 20%,transparent)}
+
+  .card-foot{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px;padding-top:14px;border-top:1px dashed var(--line2)}
+  @media(max-width:560px){.card-foot{grid-template-columns:1fr}}
+  .ff{font-size:13px}
+  .ff .lab{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);display:block;margin-bottom:3px}
+  .ff .val{color:var(--ink);font-weight:600}
+  .ff.pay .val{color:var(--lc)}
+  .hook{margin-top:14px;font-size:13.5px;color:var(--ink2);background:color-mix(in srgb,var(--lc) 9%,var(--panel));
+    border:1px solid color-mix(in srgb,var(--lc) 28%,var(--line));border-radius:10px;padding:11px 13px}
+  .hook b{color:var(--ink)}
+
+  /* ── WAGE + CADENCE ───────────────────── */
+  .cols{display:grid;grid-template-columns:1.15fr .85fr;gap:16px}
+  @media(max-width:820px){.cols{grid-template-columns:1fr}}
+  .panel{border:1px solid var(--line);border-radius:16px;background:linear-gradient(180deg,var(--panel2),var(--panel));
+    box-shadow:var(--shadow);padding:22px 22px}
+  .panel h3{font-size:16px;font-weight:800;margin-bottom:4px}
+  .panel .ph-sub{font-size:13px;color:var(--ink3);margin-bottom:16px}
+  .pay-row{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;
+    padding:12px 0;border-top:1px solid var(--line)}
+  .pay-row:first-of-type{border-top:none}
+  .pchip{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;font-size:16px;flex:none;
+    background:var(--panel);border:1px solid var(--line2)}
+  .pay-row .nm{font-weight:700;font-size:14.5px}
+  .pay-row .ds{font-size:12.5px;color:var(--ink3)}
+  .pay-row .amt{font-family:var(--mono);font-weight:700;font-size:14px;color:var(--chrome);text-align:right;white-space:nowrap}
+  .note{margin-top:14px;font-size:12px;color:var(--ink3);line-height:1.5}
+
+  .cad{display:grid;gap:0}
+  .cad-row{display:grid;grid-template-columns:52px 1fr;gap:14px;padding:11px 0;border-top:1px solid var(--line)}
+  .cad-row:first-child{border-top:none}
+  .cad .mo{font-family:var(--mono);font-weight:700;color:var(--ink);font-size:13px}
+  .cad .mo small{display:block;color:var(--ink3);font-weight:400;font-size:11px;margin-top:2px}
+  .cad .role{font-size:13.5px;color:var(--ink)}
+  .cad .role b{color:var(--chrome)}
+  .cad .role small{display:block;color:var(--ink3);font-size:12px;margin-top:2px}
+  .mk{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px;vertical-align:middle}
+
+  footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);color:var(--ink3);font-size:12.5px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+
+  /* load reveal */
+  @media (prefers-reduced-motion:no-preference){
+    .rise{opacity:0;transform:translateY(14px);animation:rise .6s cubic-bezier(.2,.7,.2,1) forwards}
+    .level:nth-child(1) .card{animation-delay:.05s}
+    .level:nth-child(2) .card{animation-delay:.1s}
+    @keyframes rise{to{opacity:1;transform:none}}
+  }
+</style>
+
+<div class="wrap">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-spectrum"></div>
+    <div class="hero-in">
+      <div class="hero-top">
+        <span class="badge"><span class="dot"></span>国家级视觉检测实验室 · DAC-3D 项目</span>
+        <span class="eyebrow">2026.08 → 2027.01 · 六个月 · 六道关</span>
+      </div>
+      <h1>半年，把 DAC-3D 从<span class="hl">看不懂</span>玩成<span class="hl">你的主场</span></h1>
+      <p class="lede">这不是补习班。这是一台价值百万的光学检测系统，从软件、硬件、光路、AI 到 FPGA 控制，六个关卡由浅入深——像色散共聚焦一样，一层层「下潜」。通一关，发一份工资；打通全部六关，你就是实验室认证的 DAC-3D 操作员。</p>
+      <div class="hero-grid">
+        <div class="stat"><div class="k">6 <span class="u">关</span></div><div class="l">软件 · 硬件 · 光路 · AI · 控制 · 现场</div></div>
+        <div class="stat"><div class="k">底薪<span class="u"> + </span>成果<span class="u"> + </span>汇报</div><div class="l">出勤拿底薪，通关拿奖金，上台再加成</div></div>
+        <div class="stat"><div class="k">第 5 周<span class="u"> 起</span></div><div class="l">从「听华大会」到「上台讲成果」</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUEST MAP -->
+  <div class="sec">
+    <div class="sec-h"><span class="eyebrow">Quest Map</span><h2>六道关卡 · 沿光谱下潜</h2></div>
+    <p class="sec-sub">每一关都对准系统里真实存在的代码与硬件模块——你改的、接的、测的，都是实验室真的在用的东西，不是练习题。第一关完全在你自己的笔记本上跑，零硬件、零风险。</p>
+
+    <div class="map">
+
+      <!-- L1 -->
+      <div class="level rise" style="--lc:var(--l1);--lc-next:var(--l2)">
+        <div class="rail"><div class="node">1</div><div class="depth">Z = 0μm<br>表层</div><div class="spine"></div></div>
+        <div class="card">
+          <div class="card-top">
+            <div>
+              <div class="track">软件 / Software</div>
+              <h3>软件在环 <span class="en">Software-in-the-Loop</span></h3>
+            </div>
+            <span class="wl">λ <b>405nm</b> · 紫</span>
+          </div>
+          <div class="world">
+            你的地盘：
+            <span class="tag">main_sil.py</span><span class="tag">hal/sim/</span><span class="tag">state_machine</span><span class="tag">event_bus</span><span class="tag">pytest</span>
+          </div>
+          <ul class="unlock">
+            <li>读懂整套系统的五层架构——从 UI 一路看到 FPGA</li>
+            <li>在自己电脑上跑通整台设备（仿真相机 / 台 / FPGA，完全不用硬件）</li>
+            <li>给仿真相机注入噪声和「假瑕疵」，让画面像真的一样</li>
+            <li>改一个功能、写一个单元测试，让 <span class="mono">pytest</span> 全绿</li>
+          </ul>
+          <div class="card-foot">
+            <div class="ff"><span class="lab">通关证明</span><span class="val">独立启动系统 + 改动一处功能 + 测试全部通过</span></div>
+            <div class="ff pay"><span class="lab">工资</span><span class="val">出勤底薪 + 通关奖（入门关）</span></div>
+          </div>
+          <div class="hook"><b>为什么你会上头：</b>第一周，你就能让一台价值百万的检测设备在你的笔记本上「活」过来——按下开始，144 个孔位一个个亮起来。别人还在看说明书，你已经在改它了。</div>
+        </div>
+      </div>
+
+      <!-- L2 -->
+      <div class="level rise" style="--lc:var(--l2);--lc-next:var(--l3)">
+        <div class="rail"><div class="node">2</div><div class="depth">Z = 20μm<br>接触层</div><div class="spine"></div></div>
+        <div class="card">
+          <div class="card-top">
+            <div>
+              <div class="track">硬件 / Hardware</div>
+              <h3>硬件实战 <span class="en">Real Machine</span></h3>
+            </div>
+            <span class="wl">λ <b>470nm</b> · 蓝</span>
+          </div>
+          <div class="world">
+            你的地盘：
+            <span class="tag">ZMotion XY 台</span><span class="tag">PI 压电 Z 轴</span><span class="tag">Basler 相机 ×3</span><span class="tag">devices.yaml</span>
+          </div>
+          <ul class="unlock">
+            <li>认识真机：二维运动台、纳米级压电 Z 轴、工业相机各是干嘛的</li>
+            <li>亲手接线、上电、回零、点动，把参数调到位</li>
+            <li>把一台真实相机 + 运动台接进系统，采下你的第一张真图</li>
+            <li>看懂 <span class="mono">devices.yaml</span>，学会用配置管理一整套硬件</li>
+          </ul>
+          <div class="card-foot">
+            <div class="ff"><span class="lab">通关证明</span><span class="val">真机采集一张清晰图像并显示到界面上</span></div>
+            <div class="ff pay"><span class="lab">工资</span><span class="val">底薪 + 通关奖 + 首张真图小奖</span></div>
+          </div>
+          <div class="hook"><b>为什么你会上头：</b>这一关是动手党的主场。真的电机会走，真的相机会咔嚓。你手上拧过的每一颗螺丝、接过的每一根线，最后都变成屏幕上那张图。</div>
+        </div>
+      </div>
+
+      <!-- L3 -->
+      <div class="level rise" style="--lc:var(--l3);--lc-next:var(--l4)">
+        <div class="rail"><div class="node">3</div><div class="depth">Z = 40μm<br>焦面</div><div class="spine"></div></div>
+        <div class="card">
+          <div class="card-top">
+            <div>
+              <div class="track">光路 / Optics</div>
+              <h3>光路之心 <span class="en">Dispersive Confocal</span></h3>
+            </div>
+            <span class="wl">λ <b>530nm</b> · 青绿</span>
+          </div>
+          <div class="world">
+            你的地盘：
+            <span class="tag">色散共聚焦光路</span><span class="tag">光源 / 镜头</span><span class="tag">DMD 结构光</span><span class="tag">波长–高度标定</span>
+          </div>
+          <ul class="unlock">
+            <li>搞懂整个实验室的看家本领：为什么「颜色就等于高度」</li>
+            <li>亲手搭一段光路，让不同高度反射出不同的颜色</li>
+            <li>测一个已知台阶，画出属于你自己的「波长–高度」标定曲线</li>
+            <li>理解光源、镜头、DMD 结构光在系统里各自的角色</li>
+          </ul>
+          <div class="card-foot">
+            <div class="ff"><span class="lab">通关证明</span><span class="val">一条你亲手测的标定曲线 + 台阶高度实测结果</span></div>
+            <div class="ff pay"><span class="lab">工资</span><span class="val">底薪 + 通关奖（技术关，加码）</span></div>
+          </div>
+          <div class="hook"><b>为什么你会上头：</b>这是整个实验室皇冠上的明珠。当你第一次看懂「用一束彩色的光就能测出纳米级的高低」——这种物理直觉，等你到奥克兰读预科时，全班没几个人有。</div>
+        </div>
+      </div>
+
+      <!-- L4 -->
+      <div class="level rise" style="--lc:var(--l4);--lc-next:var(--l5)">
+        <div class="rail"><div class="node">4</div><div class="depth">Z = 60μm<br>细节层</div><div class="spine"></div></div>
+        <div class="card">
+          <div class="card-top">
+            <div>
+              <div class="track">AI 视觉 / AI Vision</div>
+              <h3>AI 之眼 <span class="en">Defect Detection</span></h3>
+            </div>
+            <span class="wl">λ <b>590nm</b> · 绿黄</span>
+          </div>
+          <div class="world">
+            你的地盘：
+            <span class="tag">defect_service.py</span><span class="tag">阈值 / 形态学 / 连通域</span><span class="tag">数据集管理</span><span class="tag">CFAN 模型</span>
+          </div>
+          <ul class="unlock">
+            <li>从传统图像处理（阈值、形态学、连通域）读懂现在的瑕疵检测怎么做的</li>
+            <li>学会建数据集、打标签、把「亮点 / 暗点 / 划伤」分门别类</li>
+            <li>训练一个属于你的小模型，或把现有检测的准确率往上抬</li>
+            <li>用混淆矩阵、准确率这些指标，证明你的算法真的更强了</li>
+          </ul>
+          <div class="card-foot">
+            <div class="ff"><span class="lab">通关证明</span><span class="val">准确率提升 X%，或训出能三分类瑕疵的模型</span></div>
+            <div class="ff pay"><span class="lab">工资</span><span class="val">底薪 + 通关奖 + 准确率达标额外奖</span></div>
+          </div>
+          <div class="hook"><b>为什么你会上头：</b>你写的算法，直接决定一片芯片是「合格」还是「报废」。这就是 AI 在真的当质检员——不是网上的 demo，是你的代码在替工厂做判断。你有 Python 底子，这一关就是你发力的地方。</div>
+        </div>
+      </div>
+
+      <!-- L5 -->
+      <div class="level rise" style="--lc:var(--l5);--lc-next:var(--l6)">
+        <div class="rail"><div class="node">5</div><div class="depth">Z = 80μm<br>时序层</div><div class="spine"></div></div>
+        <div class="card">
+          <div class="card-top">
+            <div>
+              <div class="track">控制 / Control · FPGA</div>
+              <h3>触发魔法 <span class="en">Hardware Sync</span></h3>
+            </div>
+            <span class="wl">λ <b>620nm</b> · 琥珀</span>
+          </div>
+          <div class="world">
+            你的地盘：
+            <span class="tag">pso_generator.v</span><span class="tag">encoder_decoder.v</span><span class="tag">trigger_delay.v</span><span class="tag">scan_service</span>
+          </div>
+          <ul class="unlock">
+            <li>搞懂为什么「用软件按快门」会抖动 10–50 毫秒，而 FPGA 能精确到 10 微秒以内</li>
+            <li>理解编码器 4 倍频、PSO 位置比较——电机走到某个点，相机自动咔嚓</li>
+            <li>在仿真里配置一次「飞拍扫描」，让台子边走边拍</li>
+            <li>亲手画出触发时序图，说清楚位置和图像是怎么严丝合缝对齐的</li>
+          </ul>
+          <div class="card-foot">
+            <div class="ff"><span class="lab">通关证明</span><span class="val">一张自己画的触发时序图 + 跑通一次飞拍扫描</span></div>
+            <div class="ff pay"><span class="lab">工资</span><span class="val">底薪 + 通关奖（硬核关，高奖金）</span></div>
+          </div>
+          <div class="hook"><b>为什么你会上头：</b>这是整个系统里「魔法」真正发生的地方。台子在动、相机在拍，误差不到万分之一秒——这种严丝合缝的爽感，和你打游戏卡帧被虐是反过来的：这次是你在掌控时间。</div>
+        </div>
+      </div>
+
+      <!-- L6 -->
+      <div class="level rise" style="--lc:var(--l6);--lc-next:var(--l6)">
+        <div class="rail"><div class="node">6</div><div class="depth">Z = 100μm<br>核心</div></div>
+        <div class="card">
+          <div class="card-top">
+            <div>
+              <div class="track">现场 / On-site · 结业大关</div>
+              <h3>DMD 细胞切割 · 现场交付 <span class="en">Capstone</span></h3>
+            </div>
+            <span class="wl">λ <b>660nm</b> · 红</span>
+          </div>
+          <div class="world">
+            你的地盘：
+            <span class="tag">DMD / DLP6500 结构光</span><span class="tag">well_plate_widget（144 孔）</span><span class="tag">database_service（批次追溯）</span>
+          </div>
+          <ul class="unlock">
+            <li>走进老板最爱的项目：用 DMD 把光变成「手术刀」，精准切割细胞器</li>
+            <li>跑完一个完整的 144 孔批次，从上料到出结果全流程走通</li>
+            <li>做数据追溯、导出一份正式检测报告</li>
+            <li>把前五关学的软件、硬件、光路、AI、控制，全部串成一台会干活的系统</li>
+          </ul>
+          <div class="card-foot">
+            <div class="ff"><span class="lab">通关证明</span><span class="val">完整批次报告 + 给华大团队做结题现场演示</span></div>
+            <div class="ff pay"><span class="lab">工资</span><span class="val">底薪 + 通关大奖 + 结题主讲重奖</span></div>
+          </div>
+          <div class="hook"><b>为什么你会上头：</b>这是老板私心里最偏爱的项目——用光去切细胞，站在生物 + 光学的最前沿。打通这一关，你不只是「来实验室待过」，你是真的交付过一个国家级项目的一部分。这句话，写进任何一份大学申请里都是硬通货。</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- WAGE + CADENCE -->
+  <div class="sec">
+    <div class="sec-h"><span class="eyebrow">Rewards &amp; Rhythm</span><h2>工资单 &amp; 华大会节奏</h2></div>
+    <p class="sec-sub">规则很简单：来了、干了、讲了，就有钱。底薪保出勤，成果给奖金，上台再加成。金额是建议区间，爸爸可以按实际调整——关键是让每一分成就感都看得见、拿得到。</p>
+
+    <div class="cols">
+      <!-- WAGE -->
+      <div class="panel">
+        <h3>工资怎么算</h3>
+        <div class="ph-sub">= 出勤底薪　+　成果计件　+　汇报奖金</div>
+
+        <div class="pay-row">
+          <div class="pchip">📅</div>
+          <div><div class="nm">出勤底薪</div><div class="ds">当天到岗 + 提交一句话工作日志，即计一天</div></div>
+          <div class="amt">¥50 / 天</div>
+        </div>
+        <div class="pay-row">
+          <div class="pchip">🎯</div>
+          <div><div class="nm">通关奖（成果计件）</div><div class="ds">每关「通关证明」验收通过，难度越高越多</div></div>
+          <div class="amt">¥300–800 / 关</div>
+        </div>
+        <div class="pay-row">
+          <div class="pchip">✨</div>
+          <div><div class="nm">里程碑小奖</div><div class="ds">首张真图、首条标定曲线、准确率达标等</div></div>
+          <div class="amt">¥100 / 次</div>
+        </div>
+        <div class="pay-row">
+          <div class="pchip">🎤</div>
+          <div><div class="nm">上台展示奖</div><div class="ds">在华大会上成功展示一次成果</div></div>
+          <div class="amt">¥200 / 次</div>
+        </div>
+        <div class="pay-row">
+          <div class="pchip">🏆</div>
+          <div><div class="nm">满勤奖 &amp; 结题主讲重奖</div><div class="ds">当月满勤额外奖；第六关结题主讲大额奖</div></div>
+          <div class="amt">按月 / 项目</div>
+        </div>
+        <p class="note">建议只做「加法」不做「倒扣」：缺席、不交日志只影响当天底薪，绝不从已挣到的奖金里扣钱——避免挫败感，保护他刚刚建立起来的成就感。可以做一本明面的「工资本」，每周一结，让进度肉眼可见。</p>
+      </div>
+
+      <!-- CADENCE -->
+      <div class="panel">
+        <h3>和易教授华大团队的会</h3>
+        <div class="ph-sub">从「坐着听」平滑过渡到「站着讲」</div>
+        <div class="cad">
+          <div class="cad-row">
+            <div class="mo">第 1 月<small>关卡 1</small></div>
+            <div class="role"><span class="mk" style="background:var(--l1)"></span><b>听 + 记</b><small>认真做笔记，每次会至少问 1 个问题</small></div>
+          </div>
+          <div class="cad-row">
+            <div class="mo">第 2 月<small>关卡 2</small></div>
+            <div class="role"><span class="mk" style="background:var(--l2)"></span><b>3 分钟进度快报</b><small>说清这周接了什么、采到了什么图</small></div>
+          </div>
+          <div class="cad-row">
+            <div class="mo">第 3 月<small>关卡 3</small></div>
+            <div class="role"><span class="mk" style="background:var(--l3)"></span><b>首次现场演示</b><small>展示自己的标定曲线，3–5 分钟</small></div>
+          </div>
+          <div class="cad-row">
+            <div class="mo">第 4 月<small>关卡 4</small></div>
+            <div class="role"><span class="mk" style="background:var(--l4)"></span><b>讲成果</b><small>展示模型准确率、混淆矩阵</small></div>
+          </div>
+          <div class="cad-row">
+            <div class="mo">第 5 月<small>关卡 5</small></div>
+            <div class="role"><span class="mk" style="background:var(--l5)"></span><b>讲原理</b><small>用时序图讲清位置与图像如何对齐</small></div>
+          </div>
+          <div class="cad-row">
+            <div class="mo">第 6 月<small>关卡 6</small></div>
+            <div class="role"><span class="mk" style="background:var(--l6)"></span><b>结题主讲（15 分钟）</b><small>完整演示 DMD 项目，当一次真正的主角</small></div>
+          </div>
+        </div>
+        <p class="note">前几周只当听众，压力小、先建立熟悉感；从第 5 周起每月上台一次，台子越站越稳。到出国前，他已经能对着一屋子专家，把一个国家级项目讲明白。</p>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <span>DAC-3D 半年实践成长地图 · 为 2026.08–2027.01 定制</span>
+    <span class="mono">软件 · 硬件 · 光路 · AI · 控制 · 现场</span>
+  </footer>
+
+</div>
