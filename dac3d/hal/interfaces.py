@@ -107,6 +107,51 @@ class CameraConfig:
         }
 
 
+class EncoderInterface(Enum):
+    """编码器信号到达时序核心的方式(决定可达的时序精度)
+
+    这是"厂商无关运动接入"的关键分类: 只要运动卡输出标准正交编码器信号,
+    就能走 QUADRATURE_DIFFERENTIAL 直入 FPGA 拿到纳秒级时序, 与品牌无关。
+    """
+    QUADRATURE_DIFFERENTIAL = "quadrature_differential"  # A/B/Z差分直入FPGA —— 厂商无关, 纳秒级
+    CARD_DIGITAL = "card_digital"  # 经运动卡总线读取位置(RS485/EtherCAT) —— 存在软件延迟
+    CARD_PSO = "card_pso"  # 运动卡自带位置比较输出(PSO)
+
+
+@dataclass
+class EncoderCapabilities:
+    """编码器源能力描述
+
+    上层据此选择时序路径与判断是否可做无软件参与的位置触发。
+    """
+    axes: List[str] = field(default_factory=lambda: ["x", "y", "z"])
+    resolution_nm: float = 1.0  # 每计数对应的物理位移(nm)
+    interface: EncoderInterface = EncoderInterface.QUADRATURE_DIFFERENTIAL
+    supports_hardware_pso: bool = False  # 是否能在无软件参与下产生位置触发
+    max_count_rate_hz: float = 0.0  # 最大计数率, 0=未知
+    vendor: str = "generic"  # 运动卡厂商, "generic"=厂商无关
+    model: str = "generic"
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "axes": self.axes,
+            "resolution_nm": self.resolution_nm,
+            "interface": self.interface.value,
+            "supports_hardware_pso": self.supports_hardware_pso,
+            "max_count_rate_hz": self.max_count_rate_hz,
+            "vendor": self.vendor,
+            "model": self.model,
+        }
+
+
+@dataclass
+class EncoderReading:
+    """一次编码器采样(全轴)"""
+    counts: Dict[str, int] = field(default_factory=dict)  # 每轴原始计数
+    position_um: Dict[str, float] = field(default_factory=dict)  # 每轴物理位置(μm)
+    timestamp_ns: int = 0  # 采样时刻(单调纳秒)
+
+
 class DeviceState(Enum):
     """设备状态枚举"""
     DISCONNECTED = auto()  # 未连接
@@ -280,6 +325,79 @@ class IStage(IDevice):
     @abstractmethod
     def is_homed(self) -> bool:
         """是否已回零"""
+        pass
+
+
+class IEncoderSource(IDevice):
+    """编码器/位置源 —— 厂商无关的"运动↔视觉"结合边界
+
+    这是产品战略"增强所有运动卡厂家"在代码里的兑现点(见
+    docs/dac3d-product-strategy.md 第 6.1 节): 触发核与配方**只依赖本接口**,
+    不感知具体运动卡品牌。
+
+    - 任一输出标准正交编码器信号的运动卡, 都可经 `FpgaQuadratureEncoderSource`
+      接入(编码器差分直入 FPGA), 拿到纳秒级位置触发 —— 这是厂商无关的通用路径。
+    - 厂商专用驱动(如 ZMotion/固高/雷赛)是可选的便利/优化实现, 而非依赖。
+
+    新增一家运动卡厂商 = 写一个本接口的驱动 + 一份配方, 不改核心与 FPGA 逻辑。
+    """
+
+    @abstractmethod
+    def get_capabilities(self) -> EncoderCapabilities:
+        """获取能力描述(轴、分辨率、接入方式、是否支持硬件PSO等)"""
+        pass
+
+    @abstractmethod
+    def read_counts(self, axis: str) -> int:
+        """读取指定轴的原始编码器计数
+
+        Args:
+            axis: 'x', 'y', 'z'
+        """
+        pass
+
+    @abstractmethod
+    def read_position(self, axis: str) -> float:
+        """读取指定轴的物理位置(μm)"""
+        pass
+
+    @abstractmethod
+    def read_all(self) -> EncoderReading:
+        """一次性读取全轴计数与位置"""
+        pass
+
+    @abstractmethod
+    def zero(self, axis: Optional[str] = None) -> bool:
+        """将指定轴(或全部)的计数清零
+
+        Args:
+            axis: 指定轴, None表示全部
+        """
+        pass
+
+    @abstractmethod
+    def configure_pso(self, config: TriggerConfig) -> bool:
+        """配置位置同步输出(PSO): 厂商无关的位置触发配置
+
+        Args:
+            config: 触发配置(监控轴、起止位置、间隔、脉宽)
+        """
+        pass
+
+    @abstractmethod
+    def arm_pso(self) -> bool:
+        """武装PSO(进入位置到达即触发的状态)"""
+        pass
+
+    @abstractmethod
+    def disarm_pso(self) -> bool:
+        """解除PSO武装"""
+        pass
+
+    @property
+    @abstractmethod
+    def supports_hardware_pso(self) -> bool:
+        """是否支持无软件参与的硬件位置触发"""
         pass
 
 
@@ -561,12 +679,16 @@ __all__ = [
     "ScanRegion",
     "TriggerConfig",
     "CameraConfig",
+    "EncoderCapabilities",
+    "EncoderReading",
     # 枚举
     "DeviceState",
     "TriggerMode",
+    "EncoderInterface",
     # 接口
     "IDevice",
     "IStage",
+    "IEncoderSource",
     "ICamera",
     "IDMD",
     "ILight",

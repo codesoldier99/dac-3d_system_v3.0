@@ -9,6 +9,25 @@ fpga:
   config:
     encoder_resolution_nm: 1.0
 
+# 编码器/位置源 —— 厂商无关的"运动↔视觉"结合边界
+# 切换运动卡厂商只改这一段 type + 参数, 不改核心与 FPGA 逻辑。
+# 推荐生产路径 FpgaQuadratureEncoderSource: 编码器差分直入 FPGA, 厂商无关, 纳秒级触发。
+encoder_source:
+  # 通用路径(推荐): 任一输出正交编码器信号的运动卡都可用
+  type: "FpgaQuadratureEncoderSource"
+  device_id: "encoder_fpga_quad"
+  axes: ["x", "y", "z"]
+  config:
+    resolution_nm: 1.0        # 每计数对应位移(nm)
+    vendor: "generic"         # generic=厂商无关; 也可标注 zmotion/googol/leadshine
+    model: "generic"
+  # 备选: 具体厂商适配示例(经卡读位置, 非纳秒路径, 用于监视/标定)
+  # type: "ZMotionCardEncoderSource"
+  # device_id: "encoder_zmotion"
+  # axes: ["x", "y"]
+  # config:
+  #   resolution_nm: 1000.0
+
 # XY运动台
 stage_xy:
   type: "ZMotionStage"
