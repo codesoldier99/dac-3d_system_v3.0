@@ -1,0 +1,36 @@
+name: Claude Code
+
+# 在 Issue / PR 评论中 @claude 即可触发 Claude 分析、实现、修复并出 PR。
+#
+# 生效前需仓库管理员完成两步（本地 Claude Code 里跑 /install-github-app 可一步走完）：
+#   1. 安装 Claude GitHub App: https://github.com/apps/claude
+#   2. 在 Settings → Secrets and variables → Actions 添加 ANTHROPIC_API_KEY
+
+on:
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+  issues:
+    types: [opened, assigned]
+
+jobs:
+  claude:
+    if: >
+      contains(github.event.comment.body, '@claude') ||
+      contains(github.event.issue.body, '@claude')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Claude Code
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_args: "--max-turns 15"
