@@ -29,6 +29,7 @@ requests>=2.31.0
 
 # ===== 测试框架 =====
 pytest>=7.4.0
+pytest-cov>=4.1.0        # pyproject.toml 的 addopts 启用了 --cov, 缺此包 pytest 无法启动
 
 # ===== 辅助工具 =====
 tqdm>=4.65.0
